@@ -86,8 +86,12 @@ HOSTS_EOF
 
     # User & Sudo
     useradd -m -G wheel -s /bin/bash "$USERNAME"
+EOF
     echo "Set password for $USERNAME:"
-    passwd "$USERNAME"
+    arch-chroot /mnt /bin/bash -c 'passwd "$USERNAME"'
+    echo
+
+    arch-chroot /mnt /bin/bash <<EOF
     echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel
 
     # Bootloader
