@@ -55,9 +55,6 @@ partition_and_format() {
 # --------------------------
 # Function: Install Base System
 # --------------------------
-# --------------------------
-# Function: Install Base System
-# --------------------------
 install_base() {
     echo "Installing base system..."
 
