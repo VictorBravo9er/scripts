@@ -55,11 +55,26 @@ partition_and_format() {
 # --------------------------
 # Function: Install Base System
 # --------------------------
+# --------------------------
+# Function: Install Base System
+# --------------------------
 install_base() {
     echo "Installing base system..."
+
+    # Create the cache directory in /mnt if it doesn't exist
+    mkdir -p /mnt/var/cache/pacman/pkg
+
+    # Bind mount the host's package cache to the chroot
+    mount --bind /var/cache/pacman/pkg /mnt/var/cache/pacman/pkg
+
+    # Install the base system using pacstrap
     pacstrap /mnt base linux linux-firmware vim sudo networkmanager dhclient modemmanager \
                    grub efibootmgr wpa_supplicant wireless_tools
+
     genfstab -U /mnt >> /mnt/etc/fstab
+
+    # Unmount the bind mount after pacstrap is done
+    # umount /mnt/var/cache/pacman/pkg
 }
 
 # --------------------------
