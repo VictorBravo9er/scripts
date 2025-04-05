@@ -79,54 +79,55 @@ install_base() {
 # --------------------------
 configure_chroot() {
     arch-chroot /mnt /bin/bash <<EOF
-    set -e
+        set -e
 
-    # Timezone & Locale
-    ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
-    hwclock --systohc
-    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
-    locale-gen
-    echo "LANG=en_US.UTF-8" > /etc/locale.conf
+        # Timezone & Locale
+        ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+        hwclock --systohc
+        echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+        locale-gen
+        echo "LANG=en_US.UTF-8" > /etc/locale.conf
 
-    # Hostname & Hosts
-    echo "$HOSTNAME" > /etc/hostname
-    cat > /etc/hosts <<HOSTS_EOF
-    127.0.0.1   localhost
-    ::1         localhost
-    127.0.1.1   $HOSTNAME.localdomain $HOSTNAME
-HOSTS_EOF
+        # Hostname & Hosts
+        echo "$HOSTNAME" > /etc/hostname
+        cat > /etc/hosts <<HOSTS_EOF
+            127.0.0.1   localhost
+            ::1         localhost
+            127.0.1.1   $HOSTNAME.localdomain $HOSTNAME
+        HOSTS_EOF
 
-    # User & Sudo
-    useradd -m -G wheel -s /bin/bash "$USERNAME"
-EOF
+        # User & Sudo
+        useradd -m -G wheel -s /bin/bash "$USERNAME"
+    EOF
+
     echo "Set password for $USERNAME:"
     arch-chroot /mnt /bin/bash -c 'passwd "$USERNAME"'
     echo
 
     arch-chroot /mnt /bin/bash <<EOF
-    echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel
+        echo "%wheel ALL=(ALL) ALL" | EDITOR="tee" visudo -f /etc/sudoers.d/wheel
 
-    # Bootloader
-    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
-    grub-mkconfig -o /boot/grub/grub.cfg
+        # Bootloader
+        grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+        grub-mkconfig -o /boot/grub/grub.cfg
 
-    # Install KDE Plasma & Essentials
-    pacman -Sy --noconfirm plasma-desktop sddm dolphin konsole firefox pamac flatpak \
-                           xdg-desktop-portal-kde pipewire pipewire-pulse pipewire-alsa \
-                           mesa vulkan-intel vulkan-radeon ntfs-3g cups bluez bluez-utils \
-                           gst-libav gst-plugins-good gst-plugins-base gst-plugins-bad
+        # Install KDE Plasma & Essentials
+        pacman -Sy --noconfirm plasma-desktop sddm dolphin konsole firefox pamac flatpak \
+                            xdg-desktop-portal-kde pipewire pipewire-pulse pipewire-alsa \
+                            mesa vulkan-intel vulkan-radeon ntfs-3g cups bluez bluez-utils \
+                            gst-libav gst-plugins-good gst-plugins-base gst-plugins-bad
 
-    # Enable Services
-    systemctl enable sddm NetworkManager bluetooth cups
+        # Enable Services
+        systemctl enable sddm NetworkManager bluetooth cups
 
-    # Flatpak & Arch Linux CN Repo
-    flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    echo -e "\n[archlinuxcn]\nServer = https://mirrors.ustc.edu.cn/archlinuxcn/\$arch\nServer = https://repo.archlinuxcn.org/\$arch" >> /etc/pacman.conf
-    pacman -Sy --noconfirm archlinuxcn-keyring
+        # Flatpak & Arch Linux CN Repo
+        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        echo -e "\n[archlinuxcn]\nServer = https://mirrors.ustc.edu.cn/archlinuxcn/\$arch\nServer = https://repo.archlinuxcn.org/\$arch" >> /etc/pacman.conf
+        pacman -Sy --noconfirm archlinuxcn-keyring
 
-    # Disable Root Login
-    passwd -l root
-EOF
+        # Disable Root Login
+        passwd -l root
+    EOF
 }
 
 # --------------------------
